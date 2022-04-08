@@ -3,7 +3,7 @@ services:
   wine3.9:
     build:
       context: .
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./Dockerfile
       args:
         # do not use python >= 3.10.0 or pyinstaller >=4.6
         - PYVERSION=3.9.10
@@ -14,7 +14,7 @@ services:
   wine3.10:
     build:
       context: .
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./Dockerfile
       args:
         - PYVERSION=3.10.4
         - PYINSTALLER_VERSION=4.10
