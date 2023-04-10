@@ -1,9 +1,10 @@
 ARG WINEARCH=win64
 ARG WINEDEBUG=fixme-all,err-wineusb,err-ntoskrnl,err-mscoree
 ARG DUMB_INIT_VERSION=1.2.5
-ARG UPX_VERSION=4.0.2
+ARG UPX_VERSION=3.96
 ARG PYINSTALLER_VERSION=5.1
-ARG PYVERSION=3.10.5
+ARG CXFREEZE_VERSION=6.14
+ARG PYVERSION=3.10.11
 
 FROM alpine:3.15 as base
 ARG DUMB_INIT_VERSION
@@ -49,6 +50,7 @@ RUN set -euxo pipefail \
 FROM wine-win64 as pywine
 ARG PYVERSION
 ARG PYINSTALLER_VERSION
+ARG CXFREEZE_VERSION
 RUN set -euxo pipefail \
   && pymajor=${PYVERSION%%.*} pyminor=${PYVERSION#"${pymajor}."} pyminor=${pyminor%.*} \
   && MAJMIN=${pymajor}${pyminor} MAJDOTMIN="${pymajor}.${pyminor}" \
@@ -70,6 +72,7 @@ RUN set -euxo pipefail \
   && (xvfb-run -a  python -m pip --no-color --no-cache-dir install -U pip || true ) \
   && (xvfb-run -a  pip --no-cache-dir install -U certifi wheel setuptools auditwheel || true ) \
   && xvfb-run -a  pip --no-cache-dir install pyinstaller[encryption]==${PYINSTALLER_VERSION} \
+  && xvfb-run -a  pip --no-cache-dir install cx_freeze==${CXFREEZE_VERSION} \
   && apk del xvfb-run \
   && rm -rf /var/cache/apk/*
 
@@ -78,14 +81,15 @@ ARG WINEARCH
 ARG WINEDEBUG
 ARG PYVERSION
 ARG PYINSTALLER_VERSION
+ARG CXFREEZE_VERSION
 
 ENV PYVERSION=$PYVERSION \
     WINEPREFIX="/"${WINEARCH} \
     PYINSTALLER_VERSION=$PYINSTALLER_VERSION \
+    CXFREEZE_VERSION=$CXFREEZE_VERSION \
     WINEDEBUG=$WINEDEBUG
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# ENTRYPOINT ["dumb-init","--","/entrypoint.sh"]
-ENTRYPOINT ["/bin/bash", "-c"]
+ENTRYPOINT ["dumb-init","--","/entrypoint.sh"]

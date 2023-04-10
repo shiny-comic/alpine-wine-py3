@@ -2,24 +2,19 @@ name: python3-on-wine-on-alpine
 on: push
 
 jobs:
-  test:
-    name: test
-    runs-on: ubuntu-22.04
+  push_to_registry:
+    name: Push custom Docker image to GitHub Container Registry (ghcr.io)
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Check out repo
         uses: actions/checkout@v2
 
-      - name: setup Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - uses: docker/build-push-action@v2
+      - name: Push to GitHub Container Registry
+        uses: docker/build-push-action@v2
         with:
-          file: Dockerfile
-          tags: py3wine
-          push: false
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+          registry: ghcr.io
+          repository: shiny-comic/wine-py3-compiler
+          tag_with_ref: true
 
-      - uses: addnab/docker-run-action@v3
-        with:
-          image: py3wine
-          options: -v ${{ github.workspace }}:/src
-          run: python -V
