@@ -2,7 +2,8 @@ name: python3-on-wine-on-alpine
 on: push
 
 jobs:
-  node-docker:
+  test:
+    name: test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -18,4 +19,4 @@ jobs:
         with:
           image: py3wine
           options: -v ${{ github.workspace }}:/src
-          run: 
+          run: python -V
