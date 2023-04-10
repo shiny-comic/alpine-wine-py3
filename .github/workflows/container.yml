@@ -3,11 +3,19 @@ on: push
 
 jobs:
   node-docker:
-    runs-on: ubuntu-latest
-    container:
-      image: alpine:3.15
+    runs-on: ubuntu-22.04
     steps:
-      - name: print python version
-        run: |
-          python -V
-          pyinstaller --version
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: docker/build-push-actionv2
+        with:
+          file: Dockerfile
+          tags: py3wine
+          push: false
+
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: py3wine
+          options: -v ${{ github.workspace }}:/src
+          run: 
