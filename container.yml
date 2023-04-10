@@ -1,0 +1,21 @@
+name: python3-on-wine-on-alpine
+on: push
+
+jobs:
+  node-docker:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: docker/build-push-actionv2
+        with:
+          file: Dockerfile
+          tags: py3wine
+          push: false
+
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: py3wine
+          options: -v ${{ github.workspace }}:/src
+          run: 

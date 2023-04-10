@@ -87,4 +87,5 @@ ENV PYVERSION=$PYVERSION \
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["dumb-init","--","/entrypoint.sh"]
+# ENTRYPOINT ["dumb-init","--","/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "-c"]
