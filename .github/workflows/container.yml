@@ -1,5 +1,8 @@
 name: python3-on-wine-on-alpine
-on: push
+on:
+  push:
+    paths:
+      - 'Dockerfile'
 
 jobs:
   push_to_registry:
@@ -31,5 +34,5 @@ jobs:
         uses: bryannice/gitactions-slack-notification@2.0.0
         env:
           SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} #WEBHOOK URL
-          SLACK_TITLE: ${{ github.job  }}' job of '${{ github.repository  }}' has '${{ job.status  }}
-          SLACK_MESSAGE: ${{ github.job  }}' job in worflow '${{ github.workflow  }}' of '${{ github.repository  }}' has '${{ job.status  }}
+          SLACK_TITLE: ${{ github.job  }} job of ${{ github.repository  }} has ${{ job.status  }}
+          SLACK_MESSAGE: ${{ github.job  }} job in worflow ${{ github.workflow  }} of ${{ github.repository  }} has ${{ job.status  }}
