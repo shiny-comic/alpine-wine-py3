@@ -42,7 +42,7 @@ RUN set -euxo pipefail \
   && ( winetricks -q win10 || rm -rf ${WINEPREFIX} )\
   && ( winetricks -q win10 || true )\
   && xvfb-run -a wineboot -r \
-  && xvfb-run -a winetricks -q corefonts cjkfonts \
+  # && xvfb-run -a winetricks -q corefonts cjkfonts \
   && wget -O- -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
     | unzip -p - upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
   && apk del cabextract
