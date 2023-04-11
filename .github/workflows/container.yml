@@ -23,11 +23,13 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }} , ghcr.io/${{ github.repository }}:latest
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
 
       - name: send a slack message
         uses: bryannice/gitactions-slack-notification@2.0.0
         env:
           SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} #WEBHOOK URL
-          SLACK_TITLE: {{ github.job  }}' job of '${{ github.repository  }}' has '${{ job.status  }}
+          SLACK_TITLE: ${{ github.job  }}' job of '${{ github.repository  }}' has '${{ job.status  }}
           SLACK_MESSAGE: ${{ github.job  }}' job in worflow '${{ github.workflow  }}' of '${{ github.repository  }}' has '${{ job.status  }}
