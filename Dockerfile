@@ -10,7 +10,7 @@ FROM alpine:3.15 as base
 ARG DUMB_INIT_VERSION
 
 RUN set -euxo pipefail \
-  && apk add -q --no-cache freetype wget cabextract pwgen gnutls \
+  && apk add -q --no-cache freetype wget xvfb-run cabextract pwgen gnutls \
   && for pkg in $(echo "mono gecko"); do \
       mkdir -p /usr/share/wine/$pkg; \
       version=$(wget -q https://dl.winehq.org/wine/wine-${pkg}/ -O - | sed -nE "s|.*=\"([0-9.]+)/.*|\1|p" | sort -n | tail -n1); \
@@ -41,8 +41,8 @@ RUN set -euxo pipefail \
   && ln -s /usr/bin/wine64 /usr/bin/wine \
   && ( winetricks -q win10 || rm -rf ${WINEPREFIX} )\
   && ( winetricks -q win10 || true )\
-  && wineboot -r \
-  # && winetricks -q corefonts cjkfonts \
+  && xvfb-run -a wineboot -r \
+  # && xvfb-run -a winetricks -q corefonts cjkfonts \
   && wget -O- -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
     | unzip -p - upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
   && apk del cabextract
@@ -56,7 +56,7 @@ RUN set -euxo pipefail \
   && MAJMIN=${pymajor}${pyminor} MAJDOTMIN="${pymajor}.${pyminor}" \
   && for msi in $(echo "core exe dev lib path tcltk tools"); do \
       wget -nv "https://www.python.org/ftp/python/${PYVERSION}/amd64/${msi}.msi"; \
-      wine msiexec /i "${msi}.msi" /qn TARGETDIR=C:/Python${MAJMIN} ALLUSERS=1; \
+      xvfb-run -a wine msiexec /i "${msi}.msi" /qn TARGETDIR=C:/Python${MAJMIN} ALLUSERS=1; \
       rm -f ${msi}.msi; \
       done \
   && echo "wine 'C:\Python${MAJMIN}\python.exe' \"\$@\"" > /usr/local/bin/python \
@@ -64,16 +64,16 @@ RUN set -euxo pipefail \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\pip${MAJDOTMIN}.exe' \"\$@\"" > /usr/local/bin/pip \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\pyinstaller.exe' \"\$@\"" > /usr/local/bin/pyinstaller \
   && echo 'assoc .py=PythonScript' | wine cmd \
-   && echo "ftype PythonScript=c:\Python${MAJMIN}\python.exe"' "%1" %*' | wine cmd \
-   && wineserver -w \
+   && echo "ftype PythonScript=c:\Python${MAJMIN}\python.exe"' "%1" %*' | xvfb-run -a wine cmd \
+   && xvfb-run -a wineserver -w \
   && chmod +x /usr/local/bin/* \
-  && python -V \
-  && python -m ensurepip \
-  && ( python -m pip --no-color --no-cache-dir install -U pip || true ) \
-  && ( pip --no-cache-dir install -U certifi wheel setuptools auditwheel || true ) \
-  &&  pip --no-cache-dir install pyinstaller[encryption]==${PYINSTALLER_VERSION} \
-  &&  pip --no-cache-dir install cx_freeze==${CXFREEZE_VERSION} \
-  && apk del \
+  && xvfb-run -a python -V \
+  && xvfb-run -a python -m ensurepip \
+  && (xvfb-run -a  python -m pip --no-color --no-cache-dir install -U pip || true ) \
+  && (xvfb-run -a  pip --no-cache-dir install -U certifi wheel setuptools auditwheel || true ) \
+  && xvfb-run -a  pip --no-cache-dir install pyinstaller[encryption]==${PYINSTALLER_VERSION} \
+  && xvfb-run -a  pip --no-cache-dir install cx_freeze==${CXFREEZE_VERSION} \
+  && apk del xvfb-run \
   && rm -rf /var/cache/apk/*
 
 FROM pywine

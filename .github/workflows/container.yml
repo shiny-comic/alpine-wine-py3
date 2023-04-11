@@ -5,6 +5,8 @@ jobs:
   push_to_registry:
     name: Push custom Docker image to GitHub Container Registry (ghcr.io)
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Check out repo
         uses: actions/checkout@v2
