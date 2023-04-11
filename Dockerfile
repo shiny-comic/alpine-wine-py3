@@ -34,14 +34,15 @@ ARG UPX_VERSION
 RUN set -euxo pipefail \
   && export W_DRIVE_C="${WINEPREFIX}/drive_c" \
   && export W_WINDIR_UNIX="$W_DRIVE_C/windows" \
-  # && export repo_mirror=$(head -1 /etc/apk/repositories | sed -nE 's|(/alpine)/.*$|\1|p') \
-  # && apk add -q --no-cache -X $repo_mirror/edge/community wine \
+  && export repo_mirror=$(head -1 /etc/apk/repositories | sed -nE 's|(/alpine)/.*$|\1|p') \
+  && apk add -q --no-cache -X $repo_mirror/edge/community wine \
   && apk add -q --no-cache wine \
 # from below line, wine is wine64\
-  && ln -s /usr/bin/wine64 /usr/bin/wine \
+  #&& ln -s /usr/bin/wine64 /usr/bin/wine \
   && ( winetricks -q win10 || rm -rf ${WINEPREFIX} )\
   && ( winetricks -q win10 || true )\
   && xvfb-run -a wineboot -r \
+  && xvfb-run -a wineserver -w \
   && winetricks -q corefonts cjkfonts \
   && wget -O- -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
     | unzip -p - upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
