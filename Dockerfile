@@ -42,7 +42,7 @@ RUN set -euxo pipefail \
   && ( winetricks -q win10 || rm -rf ${WINEPREFIX} )\
   && ( winetricks -q win10 || true )\
   && xvfb-run -a wineboot -r \
-  # && xvfb-run -a winetricks -q corefonts cjkfonts \
+  && winetricks -q corefonts cjkfonts \
   && wget -O- -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
     | unzip -p - upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
   && apk del cabextract
@@ -63,6 +63,7 @@ RUN set -euxo pipefail \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\easy_install-${MAJDOTMIN}.exe' \"\$@\"" > /usr/local/bin/easy_install \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\pip${MAJDOTMIN}.exe' \"\$@\"" > /usr/local/bin/pip \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\pyinstaller.exe' \"\$@\"" > /usr/local/bin/pyinstaller \
+  && echo "wine 'C:\Python${MAJMIN}\Scripts\cxfreeze.exe' \"\$@\"" > /usr/local/bin/cxfreeze \
   && echo 'assoc .py=PythonScript' | wine cmd \
    && echo "ftype PythonScript=c:\Python${MAJMIN}\python.exe"' "%1" %*' | xvfb-run -a wine cmd \
    && xvfb-run -a wineserver -w \
