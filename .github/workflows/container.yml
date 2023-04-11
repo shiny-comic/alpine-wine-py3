@@ -11,12 +11,17 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v2
 
-      - name: Push to GitHub Container Registry
-        uses: docker/build-push-action@v2
+      - name: Login to GitHub Packages
+        uses: docker/login-action@v1
         with:
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
-          registry: ghcr.io
-          repository: shiny-comic/wine-py3-compiler
-          tag_with_ref: true
+
+      - name: Build and Push image to GitHub Container Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
