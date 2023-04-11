@@ -6,7 +6,7 @@ jobs:
     name: Push custom Docker image to GitHub Container Registry (ghcr.io)
     runs-on: ubuntu-latest
     permissions:
-      packages: write
+      packages: read
     steps:
       - name: Check out repo
         uses: actions/checkout@v2
@@ -25,3 +25,8 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
+      - name: send a slack message
+              uses: docker://technosophos/slack-notify
+              env:
+                SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} #WEBHOOK URL
+                SLACK_MESSAGE: "build complete"
