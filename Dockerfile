@@ -19,7 +19,7 @@ RUN set -euxo pipefail \
       ( wget -nv https://dl.winehq.org/wine/wine-${pkg}/${version}/wine-${pkg}-${version}-x86_64.tar.xz -O - | \
         tar x -J -f - -C /usr/share/wine/${pkg} || true ); \
      done \
-  && wget -nv https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks -O /usr/bin/winetricks \
+  && wget -nv https://raw.githubusercontent.com/Winetricks/winetricks/20230212/src/winetricks -O /usr/bin/winetricks \
   && chmod +x /usr/bin/winetricks \
   && wget -nv -O /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_x86_64 \
   && chmod +x /usr/bin/dumb-init \
@@ -35,8 +35,8 @@ RUN set -euxo pipefail \
   && export W_DRIVE_C="${WINEPREFIX}/drive_c" \
   && export W_WINDIR_UNIX="$W_DRIVE_C/windows" \
   && export repo_mirror=$(head -1 /etc/apk/repositories | sed -nE 's|(/alpine)/.*$|\1|p') \
-  && apk add -q --no-cache -X $repo_mirror/edge/community wine \
-  && apk add -q --no-cache wine \
+  && apk add -q --no-cache -X $repo_mirror/edge/community wine=8.5-r0 \
+  #&& apk add -q --no-cache wine \
 # from below line, wine is wine64\
   #&& ln -s /usr/bin/wine64 /usr/bin/wine \
   && ( winetricks -q win10 || rm -rf ${WINEPREFIX} )\
