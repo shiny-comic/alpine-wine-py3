@@ -40,8 +40,10 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ github.repository }}:latest
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:buildcache
+          # cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:buildcache,mode=max
 
       - name: send a slack message
         uses: bryannice/gitactions-slack-notification@2.0.0
