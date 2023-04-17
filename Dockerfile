@@ -10,7 +10,7 @@ FROM alpine:3.17 as base
 ARG DUMB_INIT_VERSION
 
 RUN set -euxo pipefail \
-  && apk add -q --no-cache freetype wget xvfb-run cabextract \
+  && apk add -q --no-cache freetype wget xvfb-run cabextract gnutls \
   && for pkg in $(echo "mono gecko"); do \
       mkdir -p /usr/share/wine/$pkg; \
       version=$(wget -q https://dl.winehq.org/wine/wine-${pkg}/ -O - | sed -nE "s|.*=\"([0-9.]+)/.*|\1|p" | sort -n | tail -n1); \
@@ -38,8 +38,8 @@ RUN set -euxo pipefail \
   && apk add -q --no-cache -X $repo_mirror/edge/community wine \
   && xvfb-run sh -c 'winetricks -q win10 && wineserver -w' \
   && xvfb-run sh -c 'winetricks -q corefonts cjkfonts && wineserver -w' \
-  && wget -O- -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
-    | unzip -p - upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
+  && wget -P /tmp/upx -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
+  && unzip -p /tmp/upx/upx-${UPX_VERSION}-win64.zip upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
   && apk del cabextract
 
 FROM wine-win64 as pywine
