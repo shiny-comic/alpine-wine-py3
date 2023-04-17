@@ -10,7 +10,7 @@ FROM alpine:3.15 as base
 ARG DUMB_INIT_VERSION
 
 RUN set -euxo pipefail \
-  && apk add -q --no-cache freetype wget xvfb-run cabextract pwgen gnutls \
+  && apk add -q --no-cache freetype wget xvfb-run cabextract \
   && for pkg in $(echo "mono gecko"); do \
       mkdir -p /usr/share/wine/$pkg; \
       version=$(wget -q https://dl.winehq.org/wine/wine-${pkg}/ -O - | sed -nE "s|.*=\"([0-9.]+)/.*|\1|p" | sort -n | tail -n1); \
@@ -35,15 +35,9 @@ RUN set -euxo pipefail \
   && export W_DRIVE_C="${WINEPREFIX}/drive_c" \
   && export W_WINDIR_UNIX="$W_DRIVE_C/windows" \
   && export repo_mirror=$(head -1 /etc/apk/repositories | sed -nE 's|(/alpine)/.*$|\1|p') \
-  && apk add -q --no-cache -X $repo_mirror/edge/community wine=8.5-r0 \
-  #&& apk add -q --no-cache wine \
-# from below line, wine is wine64\
-  #&& ln -s /usr/bin/wine64 /usr/bin/wine \
-  && ( winetricks -q win10 || rm -rf ${WINEPREFIX} )\
-  && ( winetricks -q win10 || true )\
-  && xvfb-run -a wineboot -r \
-  && xvfb-run -a wineserver -w \
-  && winetricks -q corefonts cjkfonts \
+  && apk add -q --no-cache -X $repo_mirror/edge/community wine \
+  && xvfb-run sh -c 'winetricks -q win10 && wineserver -w' \
+  && xvfb-run sh -c 'winetricks -q corefonts cjkfonts && wineserver -w' \
   && wget -O- -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
     | unzip -p - upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
   && apk del cabextract
