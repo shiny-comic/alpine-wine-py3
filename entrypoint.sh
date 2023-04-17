@@ -61,6 +61,11 @@ fi
 
 for str in "$@"; do
   case $str in
+    setup.py)
+      print "compiler: Cx_Freeze, version: ${CXFREEZE_VERSION}"
+      python setup.py bdist_msi
+      break
+      ;;
     *.py)
       print "compiler: pyinstaller, version: ${PYINSTALLER_VERSION}"
         pyinstaller \
