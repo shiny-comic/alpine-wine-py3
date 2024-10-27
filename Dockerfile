@@ -34,6 +34,7 @@ RUN set -euxo pipefail \
   && apk add -q --no-cache -X $repo_mirror/edge/community wine \
   && xvfb-run sh -c 'winetricks -q win10 && wineserver -w' \
   && xvfb-run sh -c 'winetricks -q corefonts cjkfonts && wineserver -w' \
+  && rm -rf /root/.cache/winetricks \
   && apk del cabextract
 
 FROM wine-win64 as pywine
