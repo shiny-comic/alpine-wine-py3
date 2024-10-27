@@ -1,8 +1,7 @@
 ARG WINEARCH=win64
-ARG WINEDEBUG=fixme-all,err-wineusb,err-ntoskrnl,err-mscoree
+ARG WINEDEBUG=fixme-all,err-wineusb,err-ntoskrnl,err-mscoree,err-environ
 ARG PYVERSION=3.10.11
 ARG DUMB_INIT_VERSION=1.2.5
-ARG CXFREEZE_VERSION=6.14
 
 FROM alpine:3.17 as base
 ARG DUMB_INIT_VERSION
@@ -39,7 +38,7 @@ RUN set -euxo pipefail \
 
 FROM wine-win64 as pywine
 ARG PYVERSION
-ARG CXFREEZE_VERSION
+ARG CXFREEZE_VERSION=6.14.9
 RUN set -euxo pipefail \
   && pymajor=${PYVERSION%%.*} pyminor=${PYVERSION#"${pymajor}."} pyminor=${pyminor%.*} \
   && MAJMIN=${pymajor}${pyminor} MAJDOTMIN="${pymajor}.${pyminor}" \
@@ -68,7 +67,7 @@ FROM pywine
 ARG WINEARCH
 ARG WINEDEBUG
 ARG PYVERSION
-ARG CXFREEZE_VERSION
+ARG CXFREEZE_VERSION=6.14.9
 
 ENV PYVERSION=$PYVERSION \
     WINEPREFIX="/"${WINEARCH} \
