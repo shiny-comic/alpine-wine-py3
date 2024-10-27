@@ -2,8 +2,6 @@ ARG WINEARCH=win64
 ARG WINEDEBUG=fixme-all,err-wineusb,err-ntoskrnl,err-mscoree
 ARG PYVERSION=3.10.11
 ARG DUMB_INIT_VERSION=1.2.5
-ARG UPX_VERSION=3.96
-ARG PYINSTALLER_VERSION=5.10.0
 ARG CXFREEZE_VERSION=6.14
 
 FROM alpine:3.17 as base
@@ -29,7 +27,6 @@ FROM base as wine-win64
 ARG WINEPREFIX=/win64
 ARG WINEARCH
 ARG WINEDEBUG
-ARG UPX_VERSION
 
 RUN set -euxo pipefail \
   && export W_DRIVE_C="${WINEPREFIX}/drive_c" \
@@ -38,13 +35,10 @@ RUN set -euxo pipefail \
   && apk add -q --no-cache -X $repo_mirror/edge/community wine \
   && xvfb-run sh -c 'winetricks -q win10 && wineserver -w' \
   && xvfb-run sh -c 'winetricks -q corefonts cjkfonts && wineserver -w' \
-  && wget -P /tmp/upx -nv https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip \
-  && unzip -p /tmp/upx/upx-${UPX_VERSION}-win64.zip upx-*/upx.exe > ${W_WINDIR_UNIX}/upx.exe \
   && apk del cabextract
 
 FROM wine-win64 as pywine
 ARG PYVERSION
-ARG PYINSTALLER_VERSION
 ARG CXFREEZE_VERSION
 RUN set -euxo pipefail \
   && pymajor=${PYVERSION%%.*} pyminor=${PYVERSION#"${pymajor}."} pyminor=${pyminor%.*} \
@@ -57,7 +51,6 @@ RUN set -euxo pipefail \
   && echo "wine 'C:\Python${MAJMIN}\python.exe' \"\$@\"" > /usr/local/bin/python \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\easy_install-${MAJDOTMIN}.exe' \"\$@\"" > /usr/local/bin/easy_install \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\pip${MAJDOTMIN}.exe' \"\$@\"" > /usr/local/bin/pip \
-  && echo "wine 'C:\Python${MAJMIN}\Scripts\pyinstaller.exe' \"\$@\"" > /usr/local/bin/pyinstaller \
   && echo "wine 'C:\Python${MAJMIN}\Scripts\cxfreeze.exe' \"\$@\"" > /usr/local/bin/cxfreeze \
   && echo 'assoc .py=PythonScript' | wine cmd \
    && echo "ftype PythonScript=c:\Python${MAJMIN}\python.exe"' "%1" %*' | xvfb-run -a wine cmd \
@@ -67,7 +60,6 @@ RUN set -euxo pipefail \
   && xvfb-run -a python -m ensurepip \
   && (xvfb-run -a  python -m pip --no-color --no-cache-dir install -U pip || true ) \
   && (xvfb-run -a  pip --no-cache-dir install -U certifi wheel setuptools auditwheel || true ) \
-  && xvfb-run -a  pip --no-cache-dir install pyinstaller[encryption]==${PYINSTALLER_VERSION} \
   && xvfb-run -a  pip --no-cache-dir install cx_freeze==${CXFREEZE_VERSION} \
   && apk del xvfb-run \
   && rm -rf /var/cache/apk/*
@@ -76,12 +68,10 @@ FROM pywine
 ARG WINEARCH
 ARG WINEDEBUG
 ARG PYVERSION
-ARG PYINSTALLER_VERSION
 ARG CXFREEZE_VERSION
 
 ENV PYVERSION=$PYVERSION \
     WINEPREFIX="/"${WINEARCH} \
-    PYINSTALLER_VERSION=$PYINSTALLER_VERSION \
     CXFREEZE_VERSION=$CXFREEZE_VERSION \
     WINEDEBUG=$WINEDEBUG
 

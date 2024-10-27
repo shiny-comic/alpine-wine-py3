@@ -35,14 +35,6 @@ while :; do
       shift
       first=$1
       ;;
-    --random-key)
-      if [ "$WINEARCH" = "win64" ]; then
-        export USEKEY=1
-        random_key=$(pwgen -s 16 1)
-      fi
-      shift
-      first=$1
-      ;;
     *)
       tmp=$1
       shift
@@ -66,25 +58,9 @@ for str in "$@"; do
       python setup.py bdist_msi
       break
       ;;
-    *.py)
-      print "compiler: pyinstaller, version: ${PYINSTALLER_VERSION}"
-        pyinstaller \
-          --clean --noconfirm \
-          --onefile \
-          --distpath ./dist \
-          --workpath /tmp \
-          -p . \
-          ${@/--random-key/--key $random_key}
-        break
-        ;;
-    *.spec)
-      print "compiler: pyinstaller, version: ${PYINSTALLER_VERSION} (using spec file)"
-      pyinstaller \
-        --clean --noconfirm \
-          --distpath ./dist \
-          --workpath /tmp \
-          $@
-      break
+    *)
+      print "Currently only cx_freeze allowed."
+      exit 1
       ;;
   esac
 done
